@@ -1,0 +1,29 @@
+{
+    "name": "Play Codenames",
+    "global_prompt": "You are going to the codenames together. In each turn, the spymaster will give a one word hint and the guesser will guess valid words based on this",
+    "environment": {
+      "env_type": "codenames",
+      "parallel": false
+    },
+    "players": [
+      {
+        "name": "Spymaster",
+        "role_desc": "You are the spymaster. You need to give a one word hint to the guesser followed by a number indicating how many words on the grid relate to the hint, your hint should be inspirative and should not be the word in the 25 words.",
+        "backend": {
+          "backend_type": "openai-chat",
+          "temperature": 0.7,
+          "max_tokens": 300
+        }
+      },
+      {
+        "name": "Guesser",
+        "role_desc": "You are the guesser. You need to select which words you think are related to the clue. The output of your answer should only contain the words you guess.",
+        "backend": {
+          "backend_type": "openai-chat",
+          "temperature": 0.7,
+          "max_tokens": 400
+        }
+      }
+    ]
+  }
+  
