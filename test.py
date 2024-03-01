@@ -1,5 +1,5 @@
 import os
-os.environ['OPENAI_API_KEY'] = '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'
+os.environ['OPENAI_API_KEY'] = 'Your OPENAI_API_KEY'
 
 from chatarena.arena import Arena
 
