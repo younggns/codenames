@@ -170,3 +170,66 @@ class OpenAIChat(IntelligenceBackend):
         response = re.sub(rf"{END_OF_MESSAGE}$", "", response).strip()
 
         return response
+    
+    def codename_query(
+        self,
+        agent_name: str,
+        role_desc: str,
+        history_messages: List[Message],
+        global_prompt: str = None,
+        request_msg: Message = None,
+        *args,
+        **kwargs,) -> str:
+        
+        """
+        Format the input and call the ChatGPT/GPT-4 API for codenames.
+
+        args:
+            agent_name: the name of the agent
+            role_desc: the description of the role of the agent
+            env_desc: the description of the environment
+            history_messages: the history of the conversation, or the observation for the agent
+            request_msg: the request from the system to guide the agent's next response
+        """
+        
+        system_prompt = f"You are a helpful assistant, who is aware of the game called 'Codenames'. In this version of 'Codenames', there are only two players, where one is a spymaster and the other is a guesser.\n{BASE_PROMPT}\n"
+        all_messages = [(SYSTEM_NAME, system_prompt)]
+        
+        # get current turn
+        max_turn = max([message.turn for message in history_messages])
+        # get all message of current turn
+        max_turn_messages = [message for message in history_messages if message.turn == max_turn]
+        
+        for msg in max_turn_messages:
+            if msg.agent_name == SYSTEM_NAME:
+                all_messages.append((SYSTEM_NAME, msg.content))
+            else:  # non-system messages are suffixed with the end of message token
+                all_messages.append((msg.agent_name, f"{msg.content}"))
+        
+        user_prompt = f"{global_prompt.strip()}\nYour name is {agent_name}.\n\nYour role:{role_desc}\n"
+        messages = []
+        for i, msg in enumerate(all_messages):
+            if i == 0:
+                assert (
+                    msg[0] == SYSTEM_NAME
+                )  # The first message should be from the system
+                messages.append({"role": "system", "content": msg[1]})
+            else:
+                user_prompt += f"[{msg[0]}]: {msg[1]}"
+                
+        user_prompt += END_OF_MESSAGE
+        messages.append({"role": "user", "content": user_prompt})
+        
+        response = self._get_response(messages, *args, **kwargs)
+
+        # Remove the agent name if the response starts with it
+        response = re.sub(rf"^\s*\[.*]:", "", response).strip()  # noqa: F541
+        response = re.sub(
+            rf"^\s*{re.escape(agent_name)}\s*:", "", response
+        ).strip()  # noqa: F451
+
+        # Remove the tailing end of message token
+        response = re.sub(rf"{END_OF_MESSAGE}$", "", response).strip()
+
+        return response
+        

@@ -16,7 +16,7 @@ class Codenames(Environment):
 
     type_name = "codenames"
 
-    def __init__(self, player_names: List[str], parallel: bool = False, **kwargs):
+    def __init__(self, player_names: List[str], all_words, valid_words, parallel: bool = False, **kwargs):
         super().__init__(player_names=player_names, parallel=parallel, **kwargs)
 
         self.parallel = parallel
@@ -28,29 +28,27 @@ class Codenames(Environment):
         self._next_player_idx = 0
         
         # words in the game
-        self.valid_words = ["Pizza", "Farm", "Light", "Butterfly", "Center", "Tea", "Beijing", "Golf"]
-        self.all_words = ["Jockey", "Disk", "Pizza", "Powder", "Fiddle",
-                            "Battleship", "Farm", "Sahara", "Brush", "Light",
-                            "Butterfly", "Center", "Tea", "Dwarf", "Rat",
-                            "Beijing", "Wheel", "Golf", "Black Hole", "Shoot",
-                            "Street", "Potato", "Wonderland", "Drawing", "Shark"]
+        self.valid_words = valid_words
+        self.all_words = all_words
 
     def reset(self):
         self._current_turn = 0
         self._next_player_idx = 0
         self.message_pool.reset()
         
-        self.valid_words = ["Pizza", "Farm", "Light", "Butterfly", "Center", "Tea", "Beijing", "Golf"]
-        self.all_words = ["Jockey", "Disk", "Pizza", "Powder", "Fiddle",
-                            "Battleship", "Farm", "Sahara", "Brush", "Light",
-                            "Butterfly", "Center", "Tea", "Dwarf", "Rat",
-                            "Beijing", "Wheel", "Golf", "Black Hole", "Shoot",
-                            "Street", "Potato", "Wonderland", "Drawing", "Shark"]
+        # need to change
+        # todo
+        # self.valid_words = ["Pizza", "Farm", "Light", "Butterfly", "Center", "Tea", "Beijing", "Golf"]
+        # self.all_words = ["Jockey", "Disk", "Pizza", "Powder", "Fiddle",
+        #                     "Battleship", "Farm", "Sahara", "Brush", "Light",
+        #                     "Butterfly", "Center", "Tea", "Dwarf", "Rat",
+        #                     "Beijing", "Wheel", "Golf", "Black Hole", "Shoot",
+        #                     "Street", "Potato", "Wonderland", "Drawing", "Shark"]
         
         text = f"The grid of words are {self.all_words}."
         self._moderator_speak(text, visible_to='all')
         
-        text = f"All the words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. The format of the output should be 'hint, number'"
+        text = f"All the words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. The format of the output should be '[hint, number]'"
         self._moderator_speak(text, visible_to='Spymaster')
         
         init_timestep = TimeStep(
@@ -105,7 +103,7 @@ class Codenames(Environment):
         # if the current player is spymaster
         if player_name == "Spymaster":
             self._next_player_idx = 1
-            text = f'Now the guesser make a guess based on the hint, each time the guesser can only guess one word.'
+            text = f"Now the guesser make a guess based on the hint, each time the guesser can only guess one word"
             self._moderator_speak(text, visible_to='Guesser')
         
         # if the current player is gusser
@@ -116,18 +114,25 @@ class Codenames(Environment):
             guess_word, check = self.guess_judge(message.content)
             if check:
                 # guess correctly
-                text = f"The word '{guess_word}' is correct, the guesser can make another guess. Now the remaining words are {self.all_words}. the guesser can only guess one word each time." 
+                text = f"The word '{guess_word}' is correct, the guesser can make another guess. the guesser can only guess one word each time." 
                 # self.guess_list.update() # maintian all the correct words
                 self._moderator_speak(text, visible_to="all")
             else:
                 # guess wrong
                 self._next_player_idx = (self._next_player_idx + 1) % self.num_players
                 if guess_word:
-                    text = f"The word '{guess_word}' is not correct and the remaining words are {self.all_words}. Now the spymaster give another hint."
+                    text = f"The word '{guess_word}' is not correct. Now the spymaster give another hint."
                 else:
-                    text = f"Invalid guess and the remaining words are {self.all_words}. Now the spymaster give another hint."
+                    text = f"Invalid guess. Now the spymaster give another hint."
                 self._moderator_speak(text, visible_to="all")
-                text = f"The remaining words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. The format of the output should be 'hint, number'"
+                
+                # Update the counters
+                self._current_turn += 1
+                
+                text = f"The grid of words are {self.all_words}."
+                self._moderator_speak(text, visible_to='all')
+                
+                text = f"The remaining words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. The format of the output should be '[hint, number]'"
                 self._moderator_speak(text, visible_to='Spymaster')
                 # self.guess_list = [] # init the guess_list to empty
         
@@ -138,8 +143,8 @@ class Codenames(Environment):
 
         # Update the counters
         # even: spymaster; odd: guesser
-        if not self.parallel or self._next_player_idx == 0:
-            self._current_turn += 1
+        # if self._next_player_idx == 0:
+        #     self._current_turn += 1
         # self._next_player_idx = (self._next_player_idx + 1) % self.num_players
 
         timestep = TimeStep(
