@@ -7,14 +7,20 @@ from chatarena.backends import OpenAIChat
 from chatarena.environments import Codenames
 from chatarena.message import Message
 
+from generate_game import get_game_board
+
 
 # valid words and all_words taken from dataset
-valid_words = ["Pizza", "Farm", "Light", "Butterfly", "Center", "Tea", "Beijing", "Golf"]
-all_words = ["Jockey", "Disk", "Pizza", "Powder", "Fiddle",
-            "Battleship", "Farm", "Sahara", "Brush", "Light",
-            "Butterfly", "Center", "Tea", "Dwarf", "Rat",
-            "Beijing", "Wheel", "Golf", "Black Hole", "Shoot",
-            "Street", "Potato", "Wonderland", "Drawing", "Shark"]
+# valid_words = ["Pizza", "Farm", "Light", "Butterfly", "Center", "Tea", "Beijing", "Golf"]
+# all_words = ["Jockey", "Disk", "Pizza", "Powder", "Fiddle",
+#             "Battleship", "Farm", "Sahara", "Brush", "Light",
+#             "Butterfly", "Center", "Tea", "Dwarf", "Rat",
+#             "Beijing", "Wheel", "Golf", "Black Hole", "Shoot",
+#             "Street", "Potato", "Wonderland", "Drawing", "Shark"]
+
+game = get_game_board(real_codenames_words=True)
+valid_words = game['blue_words']
+all_words = game['words']
 
 # will be updated
 global_prompt = "You are playing a specific version of the game - Codenames. Here are the game rules:\n\n## Information and roles\nThere are two players, and two roles in the game, spymaster and guesser.\nA list of words will be first revealed to all the players.\nThen the list of valid words will be revealed to only the spymaster.\nThe guesser does not know any words in the list of valid words.\n\n## Objectives\nYour objective in the game depends on you role:\n- If you are a spymaster, your goal is to get the guesser to link as many valid words as possible into one clue word. The clue word will be associated with a number that indicates the number of words to be guessed from the list. The clue should be such that the guesser is drawn towards guessing the words from the list of valid words, and not any other word in the list of crosswords.\n- If you are a guesser, your aim is to utilize the clue word to guess the words from the list of words that aligns well with the given clue. The guesser can guess as many words as the number associated with the clue word.\n\n## Stages\nThere are two stages in the game:\n1. The giving clues stage: The spymaster gives a clue word and a number to the guesser.\n2. The guessing stage: The guesser guesses the words that align well with the given clue. The upper limit on the number of guessed words is the number given by the spymaster."
