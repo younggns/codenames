@@ -21,13 +21,13 @@ else:
         is_openai_available = False
 
 # Default config follows the OpenAI playground
-DEFAULT_TEMPERATURE = 0.7
+DEFAULT_TEMPERATURE = 0.2
 DEFAULT_MAX_TOKENS = 256
 DEFAULT_MODEL = "gpt-3.5-turbo"
 # DEFAULT_MODEL = "gpt-4-0613"
 
 END_OF_MESSAGE = "<EOS>"  # End of message token specified by us not OpenAI
-STOP = ("<|endoftext|>", END_OF_MESSAGE)  # End of sentence token
+# STOP = ("<|endoftext|>", END_OF_MESSAGE)  # End of sentence token
 BASE_PROMPT = f"The messages always end with the token {END_OF_MESSAGE}."
 
 
@@ -78,7 +78,7 @@ class OpenAIChat(IntelligenceBackend):
             messages=messages,
             temperature=self.temperature,
             max_tokens=self.max_tokens,
-            stop=STOP,
+            # stop=STOP,
         )
 
         response = completion.choices[0].message.content
@@ -192,7 +192,7 @@ class OpenAIChat(IntelligenceBackend):
             request_msg: the request from the system to guide the agent's next response
         """
         
-        system_prompt = f"You are a helpful assistant, who is aware of the game called 'Codenames'. In this version of 'Codenames', there are only two players, where one is a spymaster and the other is a guesser.\n{BASE_PROMPT}\n"
+        system_prompt = f"You are a helpful assistant, who is aware of the game called 'Codenames'. In this version of 'Codenames', there are only two players, where one is a spymaster and the other is a guesser."
         all_messages = [(SYSTEM_NAME, system_prompt)]
         
         # get current turn
@@ -215,10 +215,11 @@ class OpenAIChat(IntelligenceBackend):
                 )  # The first message should be from the system
                 messages.append({"role": "system", "content": msg[1]})
             else:
-                user_prompt += f"[{msg[0]}]: {msg[1]}"
+                # user_prompt += f"[{msg[0]}]: {msg[1]}"
+                user_prompt += f"{msg[1]} "
                 
-        user_prompt += END_OF_MESSAGE
-        messages.append({"role": "user", "content": user_prompt})
+        # user_prompt += END_OF_MESSAGE
+        messages.append({"role": "user", "content": user_prompt.strip()})
         
         response = self._get_response(messages, *args, **kwargs)
 
@@ -227,9 +228,16 @@ class OpenAIChat(IntelligenceBackend):
         response = re.sub(
             rf"^\s*{re.escape(agent_name)}\s*:", "", response
         ).strip()  # noqa: F451
+        
+        # If agent-name == “Spymaster” :  — Parse input —
+        # todo: Convert the input into a template.. which can be added to the user-prompt
+        # if not follow the format, rerun line 224 for max 3 times, otherwise: ['', 0]
+        
+        
+        
 
         # Remove the tailing end of message token
-        response = re.sub(rf"{END_OF_MESSAGE}$", "", response).strip()
+        # response = re.sub(rf"{END_OF_MESSAGE}$", "", response).strip()
 
         return response
         

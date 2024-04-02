@@ -1,5 +1,5 @@
 import os
-os.environ['OPENAI_API_KEY'] = 'OPEN_AI_KEY'
+os.environ['OPENAI_API_KEY'] = 'OPENAI_API_KEY'
 
 from chatarena.arena import Arena
 from chatarena.agent import Player
@@ -38,12 +38,12 @@ guesser_object = Player(name='Guesser',
                           global_prompt= global_prompt,
                           backend=OpenAIChat(model='gpt-3.5-turbo'))
 
-environ_obj = Codenames(['Spymaster', 'Guesser'], all_words, valid_words)
+environ_obj = Codenames(['Spymaster', 'Guesser'], all_words, valid_words, one_word=False)
 
 arena = Arena([spymaster_object, guesser_object], environment=environ_obj, global_prompt=global_prompt)
 # arena = Arena.from_config("examples/codenames.json")
 # Run the game for 10 steps
-arena.run(num_steps=10)
+# arena.run(num_steps=50)
 arena.launch_cli()
 
 # Alternatively, you can run your own main loop
