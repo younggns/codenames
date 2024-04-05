@@ -23,8 +23,8 @@ else:
 # Default config follows the OpenAI playground
 DEFAULT_TEMPERATURE = 0.2
 DEFAULT_MAX_TOKENS = 256
-DEFAULT_MODEL = "gpt-3.5-turbo"
-# DEFAULT_MODEL = "gpt-4-0613"
+# DEFAULT_MODEL = "gpt-3.5-turbo"
+DEFAULT_MODEL = "gpt-4-0613"
 
 END_OF_MESSAGE = "<EOS>"  # End of message token specified by us not OpenAI
 # STOP = ("<|endoftext|>", END_OF_MESSAGE)  # End of sentence token
@@ -232,9 +232,49 @@ class OpenAIChat(IntelligenceBackend):
         # If agent-name == “Spymaster” :  — Parse input —
         # todo: Convert the input into a template.. which can be added to the user-prompt
         # if not follow the format, rerun line 224 for max 3 times, otherwise: ['', 0]
-        
-        
-        
+
+        # Updated parsing...
+        if agent_name == "Spymaster":
+            count = 0
+            while True:
+                try:
+                    hints = eval(response)
+                    assert(type(hints[0])==(str))
+                    assert(type(hints[1])==(int))
+                    break
+                except:
+                    count += 1
+                    if count >= 4:
+                        response = "['', 0]"
+                        break
+                    response = self._get_response(messages, *args, **kwargs)  
+
+                    # Remove the agent name if the response starts with it
+                    response = re.sub(rf"^\s*\[.*]:", "", response).strip()  # noqa: F541
+                    response = re.sub(
+                        rf"^\s*{re.escape(agent_name)}\s*:", "", response
+                    ).strip()  # noqa: F451
+        elif agent_name == "Guesser":
+            count = 0
+            while True:
+                try:
+                    hints = eval(response)
+                    for word_ in hints:
+                        assert(type(word_)==(str))
+                    break
+                except:
+                    count += 1
+                    if count >= 4:
+                        response = "[]"
+                        break
+                    response = self._get_response(messages, *args, **kwargs)  
+
+                    # Remove the agent name if the response starts with it
+                    response = re.sub(rf"^\s*\[.*]:", "", response).strip()  # noqa: F541
+                    response = re.sub(
+                        rf"^\s*{re.escape(agent_name)}\s*:", "", response
+                    ).strip()  # noqa: F451
+
 
         # Remove the tailing end of message token
         # response = re.sub(rf"{END_OF_MESSAGE}$", "", response).strip()

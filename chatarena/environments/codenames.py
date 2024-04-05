@@ -48,7 +48,7 @@ class Codenames(Environment):
         text = f"The grid of words are {self.all_words}."
         self._moderator_speak(text, visible_to='all')
         
-        text = f"All the words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. The format of the output should be [hint, number]"
+        text = f"All the words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. Your response should be formatted as ['hint', number]."
         self._moderator_speak(text, visible_to='Spymaster')
         
         init_timestep = TimeStep(
@@ -92,7 +92,7 @@ class Codenames(Environment):
             guess_word, check = self.guess_judge_one_word(message.content)
             if check:
                 # guess correctly
-                text = f"The word '{guess_word}' is correct, the guesser can make another guess, the guesser can only guess one word each time. The format of the output should be [word]" 
+                text = f"The word '{guess_word}' is correct, the guesser can make another guess, the guesser can only guess one word each time. Your response should be formatted as ['word']'." 
                 # self.guess_list.update() # maintian all the correct words
                 self._moderator_speak(text, visible_to="all")
             else:
@@ -110,7 +110,7 @@ class Codenames(Environment):
                 text = f"The grid of words are {self.all_words}."
                 self._moderator_speak(text, visible_to='all')
                 
-                text = f"The remaining words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. The format of the output should be [hint, number]"
+                text = f"The remaining words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. Your response should be formatted as ['hint', number]."
                 self._moderator_speak(text, visible_to='Spymaster')
         else:
             current_correct_words, current_incorrect_words, current_repeated_correct_words, current_repeated_incorrect_words = self.guess_judge_multi_words(message.content)
@@ -126,7 +126,7 @@ class Codenames(Environment):
             text = f"The grid of words are {self.all_words}."
             self._moderator_speak(text, visible_to='all')
             
-            text = f"The remaining words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. The format of the output should be [hint, number]"
+            text = f"The remaining words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. Your response should be formatted as ['hint', number]."
             self._moderator_speak(text, visible_to='Spymaster')
             
 
@@ -147,7 +147,7 @@ class Codenames(Environment):
         if player_name == "Spymaster":
             self._next_player_idx = 1
             if self.one_word:
-                text = f"Now the guesser make a guess based on the hint, the guesser can only guess one word each time. The format of the output should be [word]."
+                text = f"Now the guesser make a guess based on the hint, the guesser can only guess one word each time. Your response should be formatted as ['word']."
             else:
                 text = f"Now the guesser make a guess based on the hint."
             self._moderator_speak(text, visible_to='Guesser')
