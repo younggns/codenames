@@ -32,6 +32,7 @@ class Codenames(Environment):
         # words in the game
         self.valid_words = valid_words
         self.all_words = all_words
+        self.all_words_guesser = all_words
         
         # guesser could only guess one word in each turn
         self.one_word = one_word
@@ -123,8 +124,11 @@ class Codenames(Environment):
             # Update the counters
             self._current_turn += 1
             
+            # Need change
             text = f"The grid of words are {self.all_words}."
             self._moderator_speak(text, visible_to='all')
+            text = f"The valid grid of words are {self.all_words_guesser}."
+            self._moderator_speak(text, visible_to='Guesser')
             
             text = f"The remaining words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. Your response should be formatted as ['hint', number]."
             self._moderator_speak(text, visible_to='Spymaster')
@@ -181,6 +185,7 @@ class Codenames(Environment):
                 if i in self.valid_words:
                     # remove all the correct words from current valid words
                     self.valid_words.remove(i)
+                    # Need change
                     return i, True
                 else: 
                     return i, False
@@ -210,6 +215,7 @@ class Codenames(Environment):
                 else:
                     self.incorrect_words.append(i)
                     current_incorrect_words.append(i)
+                self.all_words_guesser.remove(i)
         return current_correct_words, current_incorrect_words, current_repeated_correct_words, current_repeated_incorrect_words
                     
         
