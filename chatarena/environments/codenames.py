@@ -32,7 +32,7 @@ class Codenames(Environment):
         # words in the game
         self.valid_words = valid_words
         self.all_words = all_words
-        self.all_words_guesser = all_words
+        self.all_words_guesser = list(all_words)
         
         # guesser could only guess one word in each turn
         self.one_word = one_word
@@ -110,6 +110,9 @@ class Codenames(Environment):
                 
                 text = f"The grid of words are {self.all_words}."
                 self._moderator_speak(text, visible_to='all')
+
+                text = f"The remaining words are {self.all_words_guesser}."
+                self._moderator_speak(text, visible_to='Guesser')
                 
                 text = f"The remaining words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. Your response should be formatted as ['hint', number]."
                 self._moderator_speak(text, visible_to='Spymaster')
@@ -127,7 +130,8 @@ class Codenames(Environment):
             # Need change
             text = f"The grid of words are {self.all_words}."
             self._moderator_speak(text, visible_to='all')
-            text = f"The valid grid of words are {self.all_words_guesser}."
+
+            text = f"The remaining words are {self.all_words_guesser}."
             self._moderator_speak(text, visible_to='Guesser')
             
             text = f"The remaining words in your team are {self.valid_words}. Now please give a one word hint followed by a number indicating how many words on the grid relate to the hint. Your response should be formatted as ['hint', number]."
@@ -189,6 +193,7 @@ class Codenames(Environment):
                     return i, True
                 else: 
                     return i, False
+                self.all_words_guesser.remove(i)
         return None, False
     
     def guess_judge_multi_words(self, message):
